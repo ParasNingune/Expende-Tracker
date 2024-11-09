@@ -1,3 +1,4 @@
+import React from 'react';
 import { Box, Heading, Text, Table, Tbody, Tr, Td, Stack, Image, HStack, VStack } from '@chakra-ui/react';
 
 export default function Dashboard() {
