@@ -32,7 +32,7 @@ export default function Homepage() {
             {['Dashboard', 'All Income', 'All Expense', 'Add Transaction', 'Analysis'].map((label, index) => (
               <React.Fragment key={label}>
                 <Tab
-                  fontSize="lg"
+                  fontSize="xl"
                   fontWeight="bold"
                   flex="1"
                   paddingY={4}

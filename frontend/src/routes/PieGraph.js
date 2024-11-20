@@ -1,63 +1,62 @@
-import React, { useEffect, useRef } from 'react';
-import { Chart, registerables } from 'chart.js';
+import React from 'react';
+import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
-Chart.register(...registerables);
+// Register necessary chart elements
+ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function IncomeExpensePieChart() {
-    const chartRef = useRef(null);
+const IncomeExpensePieChart = ({ transactions }) => {
+    // Process the data to get the total amount for Income and Expense
+    const transactionTotals = transactions.reduce((acc, transaction) => {
+        const amount = parseFloat(transaction.amount.replace('$', '').replace(',', '')); // Remove dollar sign and commas
 
-    useEffect(() => {
-        const ctx = chartRef.current.getContext('2d');
+        if (transaction.transaction_type === 'Income') {
+            acc.Income = (acc.Income || 0) + amount;
+        } else if (transaction.transaction_type === 'Expense') {
+            acc.Expense = (acc.Expense || 0) + amount;
+        }
 
-        const incomeData = [6000, 1500, 3000, 2000, 2500, 3200, 3100, 2900, 3400];
-        const expenseData = [500, 700, 800, 1200, 1000, 1100, 1300, 1250, 1400];
+        return acc;
+    }, {});
 
-        const totalIncome = incomeData.reduce((sum, value) => sum + value, 0);
-        const totalExpense = expenseData.reduce((sum, value) => sum + value, 0);
+    // Prepare data for Pie chart
+    const data = {
+        labels: ['Income', 'Expense'],
+        datasets: [
+            {
+                label: 'Transaction Type',
+                data: [transactionTotals.Income || 0, transactionTotals.Expense || 0],
+                backgroundColor: ['#4caf50', '#f44336'], // Green for Income, Red for Expense
+                borderColor: ['#ffffff', '#ffffff'],
+                borderWidth: 1,
+            },
+        ],
+    };
 
-        const data = {
-            labels: ['Income', 'Expense'],
-            datasets: [
-                {
-                    data: [totalIncome, totalExpense],
-                    backgroundColor: ['rgba(0, 255, 204, 0.7)', 'rgba(255, 204, 0, 0.7)'],
-                    hoverBackgroundColor: ['rgba(0, 255, 204, 1)', 'rgba(255, 204, 0, 1)'],
-                    borderColor: 'rgba(255, 255, 255, 0.5)',
-                    borderWidth: 2,
-                },
-            ],
-        };
-
-        const options = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: {
-                        color: '#FFFFFF',
-                        font: {
-                            size: 14,
-                        },
+    // Pie chart options
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (tooltipItem) {
+                        // Format the amount with a dollar sign and comma for thousands
+                        const amount = tooltipItem.raw.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+                        return `${tooltipItem.label}: ${amount}`;
                     },
                 },
             },
-        };
-
-        const myChart = new Chart(ctx, {
-            type: 'pie',
-            data: data,
-            options: options,
-        });
-
-        return () => {
-            myChart.destroy();
-        };
-    }, []);
+        },
+    };
 
     return (
-        <div style={{ backgroundColor: '#1e1e1e', padding: '20px', borderRadius: '10px', width: '300px', height: '300px', margin: 'auto' }}>
-            <canvas ref={chartRef} style={{ width: '100%', height: '100%' }}></canvas>
+        <div style={{ width: '100%', maxWidth: '300px', margin: '0 auto' }}>
+            <Pie data={data} options={options} />
         </div>
     );
-}
+};
+
+export default IncomeExpensePieChart;

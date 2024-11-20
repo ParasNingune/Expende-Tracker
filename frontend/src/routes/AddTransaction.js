@@ -35,9 +35,22 @@ export default function AddTransaction() {
     const handleAddTransaction = () => {
         if (title && amount && transactionType && category && date) {
             toast({
-                title: 'Transaction added.',
-                description: 'Your transaction has been successfully added.',
-                status: 'success',
+                render: () => (
+                    <Box 
+                        w="300px" /* Increased width */
+                        p={6} /* Increased padding */
+                        bg="green.500" 
+                        color="white" 
+                        borderRadius="md"
+                    >
+                        <Text fontWeight="bold" fontSize="xl" mb={2}>
+                            Transaction added.
+                        </Text>
+                        <Text fontSize="lg">
+                            Your transaction has been successfully added.
+                        </Text>
+                    </Box>
+                ),
                 duration: 3000,
                 isClosable: true,
             });
@@ -48,14 +61,28 @@ export default function AddTransaction() {
             setDate('');
         } else {
             toast({
-                title: 'Missing fields.',
-                description: 'Please fill out all fields before adding the transaction.',
-                status: 'error',
+                render: () => (
+                    <Box 
+                        w="300px" /* Increase width */
+                        p={6} /* Increase padding */
+                        bg="red.500" 
+                        color="white" 
+                        borderRadius="md"
+                    >
+                        <Text fontWeight="bold" fontSize="xl" mb={2}>
+                            Missing fields.
+                        </Text>
+                        <Text fontSize="lg">
+                            Please fill out all fields before adding the transaction.
+                        </Text>
+                    </Box>
+                ),
                 duration: 3000,
                 isClosable: true,
             });
         }
     };
+    
 
     return (
         <Box
@@ -67,12 +94,12 @@ export default function AddTransaction() {
             position="absolute"
             top="2%"
         >
-            <Box textAlign="center" mb={8}>
-                <Heading size="lg" color="gray.700">Add New Transaction</Heading>
-                <Text fontSize="sm" color="gray.500">Track your income and expenses efficiently</Text>
+            <Box textAlign="center" mb={6} marginTop='2'>
+                <Heading size="lg" fontSize='2xl' color="gray.700">Add New Transaction</Heading>
+                <Text size='lg' fontSize='lg' color="gray.500">Track your income and expenses efficiently</Text>
             </Box>
 
-            <Stack spacing={6}>
+            <Stack spacing={6} marginTop='10'>
                 <Input 
                     placeholder="Title" 
                     variant="outline"
@@ -81,6 +108,9 @@ export default function AddTransaction() {
                     bg="white"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                    height='3.5rem'
+                    fontSize='2xl'
+                    marginBottom={3}
                 />
 
                 <Input 
@@ -92,6 +122,9 @@ export default function AddTransaction() {
                     bg="white"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
+                    height='3.5rem'
+                    fontSize='2xl'
+                    marginBottom={3}
                 />
 
                 <Select
@@ -105,6 +138,9 @@ export default function AddTransaction() {
                         setTransactionType(e.target.value);
                         setCategory('');
                     }}
+                    height='3.5rem'
+                    fontSize='2xl'
+                    marginBottom={3}
                 >
                     <option value="income">Income</option>
                     <option value="expense">Expense</option>
@@ -119,6 +155,9 @@ export default function AddTransaction() {
                         bg="white"
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
+                        height='3.5rem'
+                    fontSize='2xl'
+                    marginBottom={3}
                     >
                         {categories.map((cat) => (
                             <option key={cat.value} value={cat.value}>
@@ -137,17 +176,25 @@ export default function AddTransaction() {
                     bg="white"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
+                    height='3.5rem'
+                    fontSize='2xl'
+                    marginBottom={3}
                 />
 
                 <Button 
                     colorScheme="green" 
-                    width="100%" 
+                    width="80%" 
                     size="lg"
                     onClick={handleAddTransaction}
                     bg="green.500"
                     color="white"
                     _hover={{ bg: "green.600" }}
                     _active={{ bg: "green.700" }}
+                    height='3.5rem'
+                    fontSize='2xl'
+                    marginBottom={3}
+                    marginTop='5'
+                    alignSelf='center'
                 >
                     Add Transaction
                 </Button>
