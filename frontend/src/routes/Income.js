@@ -1,104 +1,33 @@
 import { Box, Heading, Text, Table, Tbody, Tr, Td, HStack, VStack, Image } from '@chakra-ui/react';
+import { getDatabase, ref, get } from 'firebase/database';
+import { useEffect, useState } from 'react';
+import app from '../fireBaseConfig';
 
 export default function Income() {
-    const incomeTransactions = [
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Salary',
-            category_name: 'Income',
-            amount: '$3000.00',
-            date: '2024-11-01',
-            transaction_type: 'Income',
-        },
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Freelance Project',
-            category_name: 'Income',
-            amount: '$500.00',
-            date: '2024-11-05',
-            transaction_type: 'Income',
-        },
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Dividend',
-            category_name: 'Investment',
-            amount: '$200.00',
-            date: '2024-11-10',
-            transaction_type: 'Income',
-        },
-        {
-          category_image: 'https://via.placeholder.com/50',
-          transaction_name: 'Salary',
-          category_name: 'Income',
-          amount: '$3000.00',
-          date: '2024-11-01',
-          transaction_type: 'Income',
-      },
-      {
-          category_image: 'https://via.placeholder.com/50',
-          transaction_name: 'Freelance Project',
-          category_name: 'Income',
-          amount: '$500.00',
-          date: '2024-11-05',
-          transaction_type: 'Income',
-      },
-      {
-          category_image: 'https://via.placeholder.com/50',
-          transaction_name: 'Dividend',
-          category_name: 'Investment',
-          amount: '$200.00',
-          date: '2024-11-10',
-          transaction_type: 'Income',
-      },
-      {
-        category_image: 'https://via.placeholder.com/50',
-        transaction_name: 'Salary',
-        category_name: 'Income',
-        amount: '$3000.00',
-        date: '2024-11-01',
-        transaction_type: 'Income',
-      },
-      {
-        category_image: 'https://via.placeholder.com/50',
-        transaction_name: 'Freelance Project',
-        category_name: 'Income',
-        amount: '$500.00',
-        date: '2024-11-05',
-        transaction_type: 'Income',
-      },
-      {
-        category_image: 'https://via.placeholder.com/50',
-        transaction_name: 'Dividend',
-        category_name: 'Investment',
-        amount: '$200.00',
-        date: '2024-11-10',
-        transaction_type: 'Income',
-      },
-      {
-        category_image: 'https://via.placeholder.com/50',
-        transaction_name: 'Salary',
-        category_name: 'Income',
-        amount: '$3000.00',
-        date: '2024-11-01',
-        transaction_type: 'Income',
-      },
-      {
-        category_image: 'https://via.placeholder.com/50',
-        transaction_name: 'Freelance Project',
-        category_name: 'Income',
-        amount: '$500.00',
-        date: '2024-11-05',
-        transaction_type: 'Income',
-      },
-      {
-        category_image: 'https://via.placeholder.com/50',
-        transaction_name: 'Dividend',
-        category_name: 'Investment',
-        amount: '$200.00',
-        date: '2024-11-10',
-        transaction_type: 'Income',
-      },
-    ];
+    const [incomeTransactions, setIncomeTransactions] = useState([]);
+    const [totalIncome, setTotalIncome] = useState(0);
+
+    useEffect(() => {
+        const db = getDatabase(app);
+        const incomeRef = ref(db, 'transactions');
+
+        get(incomeRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const transactions = Object.values(data);
+                const filteredIncomeTransactions = transactions.filter(transaction => transaction.transactionType === 'income');
+                
+                setIncomeTransactions(filteredIncomeTransactions);
+
+                const totalIncome = filteredIncomeTransactions.reduce((sum, transaction) => sum + parseFloat(transaction.amount), 0);
+                setTotalIncome(totalIncome);
+            } else {
+                console.log("No Data Available");
+            }
+        }).catch((error) => {
+            console.log(error);
+        });
+    }, []);
 
     return (
         <Box 
@@ -112,7 +41,7 @@ export default function Income() {
         >
             <Box p={4} bg="gray.200" textAlign="center" mb={4} background='green.200'>
                 <Heading size="md">Total Income</Heading>
-                <Text fontSize="2xl" fontWeight="bold" mt={2}>$xxxx</Text>
+                <Text fontSize="2xl" fontWeight="bold" mt={2}>₹{totalIncome.toFixed(2)}</Text>
             </Box>
 
             <Heading size="md" mb={4} fontWeight='bold' fontSize='20'>All Income</Heading>
@@ -126,12 +55,14 @@ export default function Income() {
                                 <Td>
                                     <HStack spacing={4} width="100%">
                                         {/* Category Image */}
-                                        <Image boxSize="50px" src={transaction.category_image} alt={transaction.category_name} />
+                                        {transaction.category_image && (
+                                            <Image boxSize="50px" src={transaction.category_image} alt={transaction.category} />
+                                        )}
 
                                         {/* Centered transaction name and category */}
                                         <VStack align="center" justifyContent="center" flex="1" textAlign="center">
-                                            <Text fontWeight="bold" fontSize="18">{transaction.transaction_name}</Text>
-                                            <Text fontSize='14'>{transaction.category_name}</Text>
+                                            <Text fontWeight="bold" fontSize="18">{transaction.title}</Text>
+                                            <Text fontSize='14'>{transaction.category}</Text>
                                         </VStack>
 
                                         {/* Amount and date at the end */}

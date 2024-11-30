@@ -3,7 +3,7 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-export default function ExpenseGraph({ transactions }) {
+export default function IncomeGraph({ transactions }) {
     const chartRef = useRef(null);
 
     useEffect(() => {
@@ -12,16 +12,16 @@ export default function ExpenseGraph({ transactions }) {
         // Set custom height for the canvas
         chartRef.current.height = 81;  // Set the height of the canvas directly
 
-        // Filter expense transactions
-        const expenseTransactions = transactions.filter(
-            (t) => t.transaction_type === 'Expense'
+        // Filter income transactions
+        const incomeTransactions = transactions.filter(
+            (t) => t.transactionType === 'income'
         );
 
         // Sum up the amounts per category
-        const categoryTotals = expenseTransactions.reduce((acc, t) => {
+        const categoryTotals = incomeTransactions.reduce((acc, t) => {
             // Remove the "$" symbol and convert the amount to a number
-            const amount = parseFloat(t.amount.replace('$', ''));
-            acc[t.category_name] = (acc[t.category_name] || 0) + amount;
+            const amount = parseFloat(t.amount);
+            acc[t.category] = (acc[t.category] || 0) + amount;
             return acc;
         }, {});
 
@@ -32,9 +32,9 @@ export default function ExpenseGraph({ transactions }) {
             labels: categories,
             datasets: [
                 {
-                    label: 'Total expense Amount',
+                    label: 'Total income Amount',
                     data: totals,
-                    backgroundColor: 'rgba(255, 102, 102, 0.8)', // Color for bars
+                    backgroundColor: 'rgba(0, 255, 204, 0.8)', // Color for bars
                     borderWidth: 1,
                 },
             ],

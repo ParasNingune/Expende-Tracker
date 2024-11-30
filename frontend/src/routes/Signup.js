@@ -1,9 +1,19 @@
 // Signup Page
-import React from 'react'
+import {React, useState} from 'react'
 import { Box, Button, Divider, Heading, Input, Link } from "@chakra-ui/react"
 import { Link as RouterLink } from 'react-router-dom';
+import { auth, db, app } from '../fireBaseConfig';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from "firebase/firestore";
 
 export default function Login() {
+
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    name: '',
+  });
+
   return (
     <Box
       height="100vh"
@@ -23,7 +33,7 @@ export default function Login() {
         alignItems="center"
         padding={6}
         border="1px solid #e2e8f0"
-      >
+        >
         <Heading
           marginTop={["5%", "5%", "5%"]}
           fontSize={["4xl", "5xl", "6xl"]}
@@ -89,5 +99,5 @@ export default function Login() {
         </Link>
       </Box>
     </Box>
-  )
-}
+    )
+  }

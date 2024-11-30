@@ -5,7 +5,7 @@ Chart.register(...registerables);
 
 export default function IncomeExpenseGraph({ transactions }) {
     const chartRef = useRef(null);
-
+    console.log(transactions.transactionType);
     useEffect(() => {
         const ctx = chartRef.current.getContext('2d');
 
@@ -14,13 +14,14 @@ export default function IncomeExpenseGraph({ transactions }) {
         const uniqueDates = [...new Set(dates)];
         const incomeSum = uniqueDates.map((date) =>
             transactions
-                .filter((t) => t.date === date && t.transaction_type === 'Income')
-                .reduce((sum, t) => sum + parseFloat(t.amount.slice(1)), 0)
+                .filter((t) => t.date === date && t.transactionType === 'income')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0)
         );
+        console.log(transactions);
         const expenseSum = uniqueDates.map((date) =>
             transactions
-                .filter((t) => t.date === date && t.transaction_type === 'Expense')
-                .reduce((sum, t) => sum + parseFloat(t.amount.slice(1)), 0)
+                .filter((t) => t.date === date && t.transactionType === 'expense')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0)
         );
 
         const data = {

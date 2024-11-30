@@ -3,25 +3,25 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-export default function IncomeGraph({ transactions }) {
+export default function ExpenseGraph({ transactions }) {
     const chartRef = useRef(null);
 
     useEffect(() => {
         const ctx = chartRef.current.getContext('2d');
 
         // Set custom height for the canvas
-        chartRef.current.height = 250;  // Set the height of the canvas directly
+        chartRef.current.height = 81;  // Set the height of the canvas directly
 
-        // Filter income transactions
-        const incomeTransactions = transactions.filter(
-            (t) => t.transaction_type === 'Income'
+        // Filter expense transactions
+        const expenseTransactions = transactions.filter(
+            (t) => t.transactionType === 'expense'
         );
 
         // Sum up the amounts per category
-        const categoryTotals = incomeTransactions.reduce((acc, t) => {
+        const categoryTotals = expenseTransactions.reduce((acc, t) => {
             // Remove the "$" symbol and convert the amount to a number
-            const amount = parseFloat(t.amount.replace('$', ''));
-            acc[t.category_name] = (acc[t.category_name] || 0) + amount;
+            const amount = parseFloat(t.amount);
+            acc[t.category] = (acc[t.category] || 0) + amount;
             return acc;
         }, {});
 
@@ -32,9 +32,9 @@ export default function IncomeGraph({ transactions }) {
             labels: categories,
             datasets: [
                 {
-                    label: 'Total Income Amount',
+                    label: 'Total expense Amount',
                     data: totals,
-                    backgroundColor: 'rgba(0, 255, 204, 0.8)', // Color for bars
+                    backgroundColor: 'rgba(255, 102, 102, 0.8)', // Color for bars
                     borderWidth: 1,
                 },
             ],

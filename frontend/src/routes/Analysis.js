@@ -1,159 +1,121 @@
-import React from 'react';
+import { React, useEffect, useState } from 'react';
 import { Box, Heading, HStack } from '@chakra-ui/react';
-import IncomeExpenseGraph from './IncomeExpenseGraph';
-import PieGraph from './PieGraph';
-import IncomeGraph from './IncomeGraph';
-import ExpenseGraph from './ExpenseGraph';
+import IncomeExpenseGraph from '../graphs/IncomeExpenseGraph';
+import PieGraph from '../graphs/PieGraph';
+import IncomeGraph from '../graphs/IncomeGraph';
+import ExpenseGraph from '../graphs/ExpenseGraph';
+import { getDatabase, ref, get } from 'firebase/database';
+import app from '../fireBaseConfig';
 
 export default function Analysis() {
+    const [transactions, setTransactions] = useState([]);
+    const [incomeTransactions, setIncomeTransactions] = useState([]);
+    const [expenseTransactions, setExpenseTransactions] = useState([]);
+    const [totalIncome, setTotalIncome] = useState(0);
+    const [totalExpense, setTotalExpense] = useState(0);
 
-    const recent_transactions = [
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Grocery Shopping',
-            category_name: 'Groceries',
-            transaction_type: 'Expense',
-            amount: '$45.20',
-            date: '2024-11-01',
-        },
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Electricity Bill',
-            category_name: 'Utilities',
-            transaction_type: 'Expense',
-            amount: '$120.75',
-            date: '2024-11-05',
-        },
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Friend',
-            category_name: 'Salary',
-            transaction_type: 'Income',
-            amount: '$15.50',
-            date: '2024-11-06',
-        },
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Grocery Shopping',
-            category_name: 'Groceries',
-            transaction_type: 'Expense',
-            amount: '$45.20',
-            date: '2024-11-01',
-        },
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Friend',
-            category_name: 'Repayed',
-            transaction_type: 'Income',
-            amount: '$15.50',
-            date: '2024-11-06',
-        },
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Grocery Shopping',
-            category_name: 'Groceries',
-            transaction_type: 'Expense',
-            amount: '$45.20',
-            date: '2024-11-01',
-        },
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Friend',
-            category_name: 'Repayed',
-            transaction_type: 'Income',
-            amount: '$30.50',
-            date: '2024-11-08',
-        },
-        {
-            category_image: 'https://via.placeholder.com/50',
-            transaction_name: 'Friend',
-            category_name: 'Salary',
-            transaction_type: 'Income',
-            amount: '$55.50',
-            date: '2024-12-08',
-        },
-    ];
+    useEffect(() => {
+        const db = getDatabase(app);
+        const refs = ref(db, 'transactions');
 
-  return (
-    <Box>
-        {/* Main Content Area */}
-        <Box
-            p={6} 
-            width="83%" 
-            height="96%"
-            bg="gray.100"
-            left="16%"
-            position="absolute"
-            top="2%"
-        >
-            {/* Centered Header */}
-            <Box display="flex" justifyContent="center" mb="4">
-                <HStack spacing="4">
-                    <Box bg="gray.200" p="4" borderRadius="md" width="300px" textAlign="center" height="100px">
-                        <Heading size="lg">Total<br/>xxx</Heading>
-                    </Box>
-                    <Box bg="gray.200" p="4" borderRadius="md" width="300px" textAlign="center" height="100px">
-                        <Heading size="lg">Income<br/>xxx</Heading>
-                    </Box>
-                    <Box bg="gray.200" p="4" borderRadius="md" width="300px" textAlign="center" height="100px">
-                        <Heading size="lg">Expense<br/>xxx</Heading>
-                    </Box>
-                </HStack>
-            </Box>
+        get(refs)
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const transactions = Object.values(data);
+                    setTransactions(transactions);
 
-            {/* Content Grid */}
+                    const filteredIncomeTransactions = transactions.filter(
+                        (transaction) => transaction.transactionType === 'income'
+                    );
+                    const filteredExpenseTransactions = transactions.filter(
+                        (transaction) => transaction.transactionType === 'expense'
+                    );
+
+                    setIncomeTransactions(filteredIncomeTransactions);
+                    setExpenseTransactions(filteredExpenseTransactions);
+
+                    const totalIncome = filteredIncomeTransactions.reduce(
+                        (sum, transaction) => sum + parseFloat(transaction.amount),
+                        0
+                    );
+                    const totalExpense = filteredExpenseTransactions.reduce(
+                        (sum, transaction) => sum + parseFloat(transaction.amount),
+                        0
+                    );
+
+                    setTotalIncome(totalIncome);
+                    setTotalExpense(totalExpense);
+                } else {
+                    console.log('No data available');
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }, []);
+
+    const totalBalance = totalIncome - totalExpense;
+
+    return (
+        <Box>
             <Box
-                height="82%"
-                overflowY="auto"
-                bg="gray.300"
+                p={6}
+                width="83%"
+                height="96%"
+                bg="gray.100"
+                left="16%"
+                position="absolute"
+                top="2%"
             >
-                <Box
-                    display="grid"
-                    gridTemplateColumns="1fr 2fr"
-                >
-                    {/* Top Left - Pie Chart */}
-                    <Box bg="gray.400" borderRadius="md" p="4" marginLeft={5} marginRight={3} marginTop={5}>
-                        <Heading size="md" fontSize="24" textAlign="center" mb="4">
-                        Pie Chart
-                        </Heading>
-                        {/* Include Pie Chart Component Here */}
-                        <PieGraph transactions={recent_transactions} />
-                    </Box>
-
-                    {/* Top Right - Income vs Expense */}
-                    <Box bg="gray.400" borderRadius="md" p="4" marginRight={5} marginTop={5} minW={600} maxWidth={900}>
-                        <Heading size="md" fontSize="24" textAlign="center" mb="4">
-                        Income vs Expense
-                        </Heading>
-                        {/* Include Income vs Expense Graph Component Here */}
-                        <IncomeExpenseGraph transactions={recent_transactions} />
-                    </Box>
+                <Box display="flex" justifyContent="center" mb="4">
+                    <HStack spacing="4">
+                        <Box bg="gray.200" p="4" width="300px" textAlign="center" backgroundColor="green.200">
+                            <Heading size="md">Income<br />₹ {totalIncome.toFixed(2)}</Heading>
+                        </Box>
+                        <Box bg="gray.200" p="4" width="300px" textAlign="center" backgroundColor="blue.200">
+                            <Heading size="md">Total<br />₹ {totalBalance.toFixed(2)}</Heading>
+                        </Box>
+                        <Box bg="gray.200" p="4" width="300px" textAlign="center" backgroundColor="red.200">
+                            <Heading size="md">Expense<br />₹ {totalExpense.toFixed(2)}</Heading>
+                        </Box>
+                    </HStack>
                 </Box>
 
-                <Box
-                    display="grid"
-                    gridTemplateColumns="1fr 1fr"
-                >
-                    {/* Bottom Left - Income Distribution */}
-                    <Box bg="gray.400" borderRadius="md" p="4" marginLeft={5} marginRight={3} marginTop={5} marginBottom={5}>
-                        <Heading size="md" fontSize="24" textAlign="center" mb="4">
-                        Income Distribution
-                        </Heading>
-                        {/* Include Income Distribution Component Here */}
-                        <IncomeGraph transactions={recent_transactions} />
+                <Box height="82%" overflowY="auto" bg="gray.300">
+                    <Box display="grid" gridTemplateColumns="1fr 2fr">
+                        <Box bg="gray.400" borderRadius="md" p="4" marginLeft={5} marginRight={3} marginTop={5}>
+                            <Heading size="md" fontSize="24" textAlign="center" mb="4">
+                                Pie Chart
+                            </Heading>
+                            <PieGraph transactions={transactions} />
+                        </Box>
+
+                        <Box bg="gray.400" borderRadius="md" p="4" marginRight={5} marginTop={5} minW={600} maxWidth={900}>
+                            <Heading size="md" fontSize="24" textAlign="center" mb="4">
+                                Income vs Expense
+                            </Heading>
+                            <IncomeExpenseGraph transactions={transactions} />
+                        </Box>
                     </Box>
 
-                    {/* Bottom Right - Expense Distribution */}
-                    <Box bg="gray.400" borderRadius="md" p="4" marginRight={5} marginTop={5} marginBottom={5}>
-                        <Heading size="md" fontSize="24" textAlign="center" mb="4">
-                        Expense Distribution
-                        </Heading>
-                        {/* Include Expense Distribution Component Here */}
-                        <ExpenseGraph transactions={recent_transactions} />
+                    <Box display="grid" gridTemplateColumns="1fr 1fr">
+                        <Box bg="gray.400" borderRadius="md" p="4" marginLeft={5} marginRight={3} marginTop={5} minW={500} maxWidth={600} marginBottom={5}>
+                            <Heading size="md" fontSize="24" textAlign="center" mb="4">
+                                Income Distribution
+                            </Heading>
+                            <IncomeGraph transactions={incomeTransactions} />
+                        </Box>
+
+                        <Box bg="gray.400" borderRadius="md" p="4" marginRight={5} marginTop={5} minW={500} maxWidth={600} marginBottom={5}>
+                            <Heading size="md" fontSize="24" textAlign="center" mb="4">
+                                Expense Distribution
+                            </Heading>
+                            <ExpenseGraph transactions={expenseTransactions} />
+                        </Box>
                     </Box>
                 </Box>
             </Box>
         </Box>
-    </Box>
-  );
+    );
 }
